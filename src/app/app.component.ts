@@ -20,10 +20,13 @@ export class AppComponent implements OnInit {
   employee: any;
   // user$;
   currentUser;
-  promptEvent;
+  prompt;
   VAPID_PUBLIC_KEY = "BFcFRHlvD2u_K41jgFPJ79yD4GSuQnUNrsDPp0Dm2p5myrmjgT6CbIzHkrCE8DXoQUflPNralbQV2wSnofcyt8A";
   // currentMessage = new BehaviorSubject(null);
-  private messaging = firebase.messaging()
+  private messaging = firebase.messaging();
+
+  // addBtn = <HTMLElement><any>document.querySelector('.add-button');
+
 
   constructor(private http: HttpClient,
     private afAuth: AngularFireAuth,
@@ -45,20 +48,25 @@ export class AppComponent implements OnInit {
           _messaging.onMessage = _messaging.onMessage.bind(_messaging);
           _messaging.onTokenRefresh = _messaging.onTokenRefresh.bind(_messaging);
         }
-      )
+      );
+      window.addEventListener('beforeinstallprompt', event => {
+        event.preventDefault();
+        this.prompt = event;
+        console.log(this.prompt);
+      });
   }
 
 
   ngOnInit() {
     this.http.get(`https://jsonplaceholder.typicode.com/users`).subscribe(res => { this.employee = res; });
     // this.user$.subscribe(res => this.currentUser = res);
-    window.addEventListener('beforeinstallprompt', event => {
-      this.promptEvent = event;
-      this.promptEvent.prompt();
-    });
+
     this.receiveMessage();
   }
-
+  a2hs(){
+    this.prompt.prompt();
+    this.prompt.userChoice.then(choice => { this.prompt = null;});
+  }
   GoogleAuth() {
     const provider = new firebase.auth.GoogleAuthProvider();
     return this.oAuthLogin(provider);
